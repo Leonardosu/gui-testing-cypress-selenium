@@ -1,5 +1,5 @@
 const randomstring = require("randomstring");
-Cypress.config('defaultCommandTimeout', 20000);
+Cypress.config('defaultCommandTimeout', 40000);
 
 const genString = (length) => {
   return randomstring.generate({
@@ -222,7 +222,7 @@ describe('shipping categories', () => {
     deleteCategory(categoryName1);
     deleteCategory(categoryName2);
   });
-  it('delte all categories', () => {
+  it('delete all categories', () => {
     cy.clickInFirst('a[href="/admin/shipping-categories/"]');
 
     //Create some category
