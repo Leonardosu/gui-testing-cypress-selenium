@@ -26,6 +26,21 @@ describe('shipping categories', () => {
     await buttonToCreate[0].click();
   }
 
+  const deleteCategory = async (categoryName) => {
+    await driver.findElement(By.linkText('Shipping categories')).click();
+
+    // Localizar a linha com o texto 'to_be_deleted'
+    const rowLocator = By.xpath(`//tr[contains(., '${categoryName}')]`);
+    const rowElement = await driver.findElement(rowLocator);
+
+    // Encontrar o botão de exclusão dentro da linha
+    const deleteButton = await rowElement.findElement(By.css('*[class="ui red labeled icon button"]'));
+    await deleteButton.click();
+
+    const confirmButton = await driver.findElement(By.css('*[class="ui green ok inverted button"]'));
+    await confirmButton.click();
+  }
+
   before(async () => {
     driver = await new Builder().forBrowser('firefox').build();
   });
@@ -69,7 +84,7 @@ describe('shipping categories', () => {
     assert(bodyText.includes('Shipping category has been successfully created.'));
   });
 
-  it.only('should delete a shipping category if the user click YES', async () => {
+  it('should delete a shipping category if the user click YES', async () => {
     const categoryName = genString(15);
     await genCategory(categoryName);
     await driver.findElement(By.linkText('Shipping categories')).click();
@@ -88,5 +103,27 @@ describe('shipping categories', () => {
     const bodyText = await driver.findElement(By.tagName('body')).getText();
     assert(bodyText.includes('Shipping category has been successfully deleted.'));
     assert(!bodyText.includes(categoryName));
+  });
+  
+  it.only('should delete a shipping category if the user click NO', async () => {
+    const categoryName = genString(15);
+    await genCategory(categoryName);
+    await driver.findElement(By.linkText('Shipping categories')).click();
+
+    // Localizar a linha com o texto 'to_be_deleted'
+    const rowLocator = By.xpath(`//tr[contains(., '${categoryName}')]`);
+    const rowElement = await driver.findElement(rowLocator);
+
+    // Encontrar o botão de exclusão dentro da linha
+    const deleteButton = await rowElement.findElement(By.css('*[class="ui red labeled icon button"]'));
+    await deleteButton.click();
+
+    const notConfirmButton = await driver.findElement(By.css('*[class="ui red basic cancel inverted button"]'));
+    await notConfirmButton.click();
+
+    const bodyText = await driver.findElement(By.tagName('body')).getText();
+    assert(!bodyText.includes('Shipping category has been successfully deleted.'));
+    assert(bodyText.includes(categoryName));
+    deleteCategory(categoryName);
   });
 });
