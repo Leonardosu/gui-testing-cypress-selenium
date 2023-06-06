@@ -72,9 +72,37 @@ describe('shipping categories', () => {
     cy.get('body').should('not.contain', 'Shipping category has been successfully deleted.');
     cy.get('body').should('contain', categoryName);
   });
-  it('test case 3', () => {
-    
-  });
+  it.only('should not delete a shipping category if the user click NO', () => {
+    const categoryName = genString(15);
+    genCategory(categoryName);
+    cy.clickInFirst('a[href="/admin/shipping-categories/"]');
 
+    cy.contains('tr', categoryName)
+    .within(() => {
+      cy.get('*[class="ui red labeled icon button"]')
+        .click();
+    });
+    cy.get('*[class="ui red basic cancel inverted button"]').click()
+
+    cy.get('body').should('not.contain', 'Shipping category has been successfully deleted.');
+    cy.get('body').should('contain', categoryName);
+  });
+  it.only('edit a shipping category', () => {
+    cy.clickInFirst('a[href="/admin/shipping-categories/"]');
+
+    cy.get('*[class="ui labeled icon button "]').eq(1).click();
+    
+    // Edit category name
+    cy.get('[id="sylius_shipping_category_name"]').clear().type('New Name 22');
+
+    // Edit category description
+    cy.get('[id="sylius_shipping_category_description"]').clear().type('New Description 22'); // Substitua "New Description" pela nova descrição da categoria
+
+    // Click on save button
+    cy.get('*[class="ui labeled icon primary button"]').scrollIntoView().click();
+
+    // Assert that shipping category has been successfully edited
+    cy.get('body').should('contain', 'Shipping category has been successfully updated.');
+  });
   // Implement the remaining test cases in a similar manner
 });
