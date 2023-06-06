@@ -261,4 +261,25 @@ describe('shipping categories', () => {
     await deleteCategory(categoryName2);
   });
 
+  it('should filter categories with ends_with', async () => {
+    const categoryName1 = "c1";
+    const categoryName2 = "c2";
+    const categoryName3 = "c3";
+    await genCategory(categoryName1);
+    await genCategory(categoryName2);
+    await genCategory(categoryName3);
+
+    await driver.findElement(By.linkText('Shipping categories')).click();
+
+    await driver.findElement(By.css("input[data-js-bulk-buttons='.sylius-grid-nav__bulk']")).click();
+
+    await driver.findElement(By.css('button[data-bulk-action-requires-confirmation=""]')).click();
+    
+    const confirmButton = await driver.findElement(By.css('[class="ui green ok inverted button"'));
+    await confirmButton.click();
+
+    const bodyText = await driver.findElement(By.tagName('body')).getText();
+    assert(bodyText.includes('There are no results to display'));
+  });
+
 });
