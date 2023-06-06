@@ -1,3 +1,12 @@
+const randomstring = require("randomstring");
+
+const genString = () => {
+  return randomstring.generate({
+    length: 10,
+    charset: 'alphabetic'
+  });
+}
+
 describe('shipping categories', () => {
   beforeEach(() => {
     cy.visit('/admin');
@@ -6,7 +15,7 @@ describe('shipping categories', () => {
     cy.get('.primary').click();
   });
   // Remove .only and implement others test cases!
-  it.only('create a new shipping category', () => {
+  it('create a new shipping category', () => {
     // Click in shipping categories in side menu
     cy.clickInFirst('a[href="/admin/shipping-categories/"]');
     // Click on create button
@@ -23,8 +32,28 @@ describe('shipping categories', () => {
     // Assert that shipping category has been created.
     cy.get('body').should('contain', 'Shipping category has been successfully created.');
   });
-  it('test case 2', () => {
+  it.only('delete a new shipping category', () => {
     // Implement your test case 2 code here
+    const categoryName = genString();
+    cy.clickInFirst('a[href="/admin/shipping-categories/"]');
+    cy.get('*[class^="ui labeled icon button  primary "]').click();
+    cy.get('[id="sylius_shipping_category_code"]').type(categoryName);
+    cy.get('[id="sylius_shipping_category_name"]').type(categoryName);
+    cy.get('[id="sylius_shipping_category_description"]').type(categoryName);
+
+    cy.get('*[class^="ui labeled icon primary button"]').scrollIntoView().click();
+
+    cy.clickInFirst('a[href="/admin/shipping-categories/"]');
+
+    cy.contains('tr', categoryName)
+    .within(() => {
+      cy.get('*[class="ui red labeled icon button"]')
+        .click();
+    });
+    cy.get('*[class="ui green ok inverted button"]').click()
+
+    cy.get('body').should('contain', 'Shipping category has been successfully deleted.');
+    cy.get('body').should('not.contain', categoryName);
   });
   it('test case 3', () => {
     // Implement your test case 3 code here
