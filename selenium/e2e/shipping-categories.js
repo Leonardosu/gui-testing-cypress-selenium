@@ -82,6 +82,7 @@ describe('shipping categories', () => {
     // Assert that shipping category has been created.
     const bodyText = await driver.findElement(By.tagName('body')).getText();
     assert(bodyText.includes('Shipping category has been successfully created.'));
+    await deleteCategory('33');
   });
 
   it('should delete a shipping category if the user click YES', async () => {
@@ -103,7 +104,7 @@ describe('shipping categories', () => {
     assert(!bodyText.includes(categoryName));
   });
   
-  it('should delete a shipping category if the user click NO', async () => {
+  it('should not delete a shipping category if the user click NO', async () => {
     const categoryName = genString(15);
     await genCategory(categoryName);
     await driver.findElement(By.linkText('Shipping categories')).click();
@@ -238,7 +239,7 @@ describe('shipping categories', () => {
     await deleteCategory(categoryName2);
   });
 
-  it.only('should filter categories with ends_with', async () => {
+  it('should filter categories with ends_with', async () => {
     const categoryName1 = "Categoryfoo";
     const categoryName2 = "Categoryhaha";
     await genCategory(categoryName1);
