@@ -1,4 +1,5 @@
 const randomstring = require("randomstring");
+Cypress.config('defaultCommandTimeout', 20000);
 
 const genString = (length) => {
   return randomstring.generate({
@@ -173,7 +174,7 @@ describe('shipping categories', () => {
 
     deleteCategory(categoryName);
   });
-  it.only('should filter categories that start with "Random"', () => {
+  it('should filter categories that start with "Random"', () => {
     cy.clickInFirst('a[href="/admin/shipping-categories/"]');
 
     //Create some category
@@ -197,7 +198,7 @@ describe('shipping categories', () => {
     deleteCategory(categoryName1);
     deleteCategory(categoryName2);
   });
-  it.only('should filter categories that end with "foo"', () => {
+  it('should filter categories that end with "foo"', () => {
     cy.clickInFirst('a[href="/admin/shipping-categories/"]');
 
     //Create some category
@@ -209,7 +210,7 @@ describe('shipping categories', () => {
     // Set filter to 'end with'
     cy.clickInFirst('a[href="/admin/shipping-categories/"]');
     cy.get('#criteria_search_type').select('ends_with');
-    cy.get('[id="criteria_search_value"]').type('Random');
+    cy.get('[id="criteria_search_value"]').type('foo');
 
     cy.get('[class="ui blue labeled icon button"').click();
 
@@ -220,5 +221,28 @@ describe('shipping categories', () => {
 
     deleteCategory(categoryName1);
     deleteCategory(categoryName2);
+  });
+  it('delte all categories', () => {
+    cy.clickInFirst('a[href="/admin/shipping-categories/"]');
+
+    //Create some category
+    const categoryName1 = "c1";
+    const categoryName2 = "c2";
+    const categoryName3 = "c3";
+    genCategory(categoryName1);
+    genCategory(categoryName2);
+    genCategory(categoryName3);
+
+    // Select all categories
+    cy.clickInFirst('a[href="/admin/shipping-categories/"]');
+    cy.get('input[data-js-bulk-buttons=".sylius-grid-nav__bulk"]').click();
+    
+    // Click delete button
+    cy.get('button[data-bulk-action-requires-confirmation=""]').click();
+
+    cy.get('*[class="ui green ok inverted button"]').click();
+
+    //Assert that all categories was deleted
+    cy.get('body').should('contain', 'There are no results to display');
   });
 });
