@@ -7,8 +7,7 @@ const genString = (length) => {
   });
 }
 
-const genCategory = () => {
-  const categoryName = genString(15);
+const genCategory = (categoryName) => {
   cy.clickInFirst('a[href="/admin/shipping-categories/"]');
   cy.get('*[class^="ui labeled icon button  primary "]').click();
   cy.get('[id="sylius_shipping_category_code"]').type(categoryName);
@@ -16,8 +15,6 @@ const genCategory = () => {
   cy.get('[id="sylius_shipping_category_description"]').type(categoryName);
 
   cy.get('*[class^="ui labeled icon primary button"]').scrollIntoView().click();
-
-  return categoryName;
 }
 
 describe('shipping categories', () => {
@@ -45,9 +42,9 @@ describe('shipping categories', () => {
     // Assert that shipping category has been created.
     cy.get('body').should('contain', 'Shipping category has been successfully created.');
   });
-  it.only('delete a new shipping category', () => {
-    // Implement your test case 2 code here
-    const categoryName = genCategory();
+  it('should delete a shipping category if the user click YES', () => {
+    const categoryName = genString(15);
+    genCategory(categoryName);
     cy.clickInFirst('a[href="/admin/shipping-categories/"]');
 
     cy.contains('tr', categoryName)
@@ -60,8 +57,23 @@ describe('shipping categories', () => {
     cy.get('body').should('contain', 'Shipping category has been successfully deleted.');
     cy.get('body').should('not.contain', categoryName);
   });
+  it.only('should not delete a shipping category if the user click NO', () => {
+    const categoryName = genString(15);
+    genCategory(categoryName);
+    cy.clickInFirst('a[href="/admin/shipping-categories/"]');
+
+    cy.contains('tr', categoryName)
+    .within(() => {
+      cy.get('*[class="ui red labeled icon button"]')
+        .click();
+    });
+    cy.get('*[class="ui red basic cancel inverted button"]').click()
+
+    cy.get('body').should('not.contain', 'Shipping category has been successfully deleted.');
+    cy.get('body').should('contain', categoryName);
+  });
   it('test case 3', () => {
-    // Implement your test case 3 code here
+    
   });
 
   // Implement the remaining test cases in a similar manner
