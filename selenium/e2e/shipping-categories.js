@@ -123,7 +123,7 @@ describe('shipping categories', () => {
     deleteCategory(categoryName);
   });
 
-  it.only('edit a shipping category', async () => {
+  it('edit a shipping category', async () => {
     const categoryName = genString(15);
     await genCategory(categoryName);
     await driver.findElement(By.linkText('Shipping categories')).click();
@@ -148,5 +148,30 @@ describe('shipping categories', () => {
     assert(bodyText.includes('New Name 22'));
     assert(bodyText.includes('New Description 22'));
     deleteCategory(categoryName);
+  });
+
+  it.only('should filter equals category', async () => {
+    const categoryName1 = "RandomCategory";
+    const categoryName2 = "OtherName";
+    await genCategory(categoryName1);
+    await genCategory(categoryName2);
+
+    await driver.findElement(By.linkText('Shipping categories')).click();
+    
+    const elementoSelect = await driver.findElement(By.css('#criteria_search_type'));
+
+    await driver.executeScript("arguments[0].value = 'equal';", elementoSelect);
+
+    await driver.findElement(By.id('criteria_search_value')).sendKeys(categoryName1);
+
+    const confirmButton = await driver.findElement(By.css('[class="ui blue labeled icon button"'));
+    await confirmButton.click();
+
+    const bodyText = await driver.findElement(By.tagName('body')).getText();
+    assert(bodyText.includes(categoryName1));
+    assert(!bodyText.includes(categoryName2));
+
+    await deleteCategory(categoryName1);
+    await deleteCategory(categoryName2);
   });
 });
