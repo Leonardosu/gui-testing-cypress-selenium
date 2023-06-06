@@ -1,10 +1,23 @@
 const randomstring = require("randomstring");
 
-const genString = () => {
+const genString = (length) => {
   return randomstring.generate({
-    length: 10,
+    length,
     charset: 'alphabetic'
   });
+}
+
+const genCategory = () => {
+  const categoryName = genString(15);
+  cy.clickInFirst('a[href="/admin/shipping-categories/"]');
+  cy.get('*[class^="ui labeled icon button  primary "]').click();
+  cy.get('[id="sylius_shipping_category_code"]').type(categoryName);
+  cy.get('[id="sylius_shipping_category_name"]').type(categoryName);
+  cy.get('[id="sylius_shipping_category_description"]').type(categoryName);
+
+  cy.get('*[class^="ui labeled icon primary button"]').scrollIntoView().click();
+
+  return categoryName;
 }
 
 describe('shipping categories', () => {
@@ -34,15 +47,7 @@ describe('shipping categories', () => {
   });
   it.only('delete a new shipping category', () => {
     // Implement your test case 2 code here
-    const categoryName = genString();
-    cy.clickInFirst('a[href="/admin/shipping-categories/"]');
-    cy.get('*[class^="ui labeled icon button  primary "]').click();
-    cy.get('[id="sylius_shipping_category_code"]').type(categoryName);
-    cy.get('[id="sylius_shipping_category_name"]').type(categoryName);
-    cy.get('[id="sylius_shipping_category_description"]').type(categoryName);
-
-    cy.get('*[class^="ui labeled icon primary button"]').scrollIntoView().click();
-
+    const categoryName = genCategory();
     cy.clickInFirst('a[href="/admin/shipping-categories/"]');
 
     cy.contains('tr', categoryName)
