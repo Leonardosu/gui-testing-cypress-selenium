@@ -261,7 +261,7 @@ describe('shipping categories', () => {
     await deleteCategory(categoryName2);
   });
 
-  it('should filter categories with ends_with', async () => {
+  it('delete all categories', async () => {
     const categoryName1 = "c1";
     const categoryName2 = "c2";
     const categoryName3 = "c3";
