@@ -172,7 +172,7 @@ describe('shipping categories', () => {
     await deleteCategory(categoryName2);
   });
 
-  it.only('should filter contains category', async () => {
+  it('should filter contains category', async () => {
     const categoryName1 = "RandomCategory";
     const categoryName2 = "RandCategory";
     const categoryName3 = "OtherName";
@@ -196,5 +196,23 @@ describe('shipping categories', () => {
     await deleteCategory(categoryName1);
     await deleteCategory(categoryName2);
     await deleteCategory(categoryName3);
+  });
+
+  it.only('should filter not contains category', async () => {
+    const categoryName = "RandomCategory";
+    await genCategory(categoryName);
+
+    await driver.findElement(By.linkText('Shipping categories')).click();
+    
+    const selectElement = await driver.findElement(By.css('#criteria_search_type'));
+    await driver.executeScript("arguments[0].value = 'not_contains';", selectElement);
+    await driver.findElement(By.id('criteria_search_value')).sendKeys('Random');
+    const confirmButton = await driver.findElement(By.css('[class="ui blue labeled icon button"'));
+    await confirmButton.click();
+
+    const bodyText = await driver.findElement(By.tagName('body')).getText();
+    assert(!bodyText.includes(categoryName));
+
+    await deleteCategory(categoryName);
   });
 });
