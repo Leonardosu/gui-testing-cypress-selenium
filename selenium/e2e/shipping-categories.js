@@ -150,7 +150,7 @@ describe('shipping categories', () => {
     deleteCategory(categoryName);
   });
 
-  it.only('should filter equals category', async () => {
+  it('should filter equals category', async () => {
     const categoryName1 = "RandomCategory";
     const categoryName2 = "OtherName";
     await genCategory(categoryName1);
@@ -158,12 +158,9 @@ describe('shipping categories', () => {
 
     await driver.findElement(By.linkText('Shipping categories')).click();
     
-    const elementoSelect = await driver.findElement(By.css('#criteria_search_type'));
-
-    await driver.executeScript("arguments[0].value = 'equal';", elementoSelect);
-
+    const selectElement = await driver.findElement(By.css('#criteria_search_type'));
+    await driver.executeScript("arguments[0].value = 'equal';", selectElement);
     await driver.findElement(By.id('criteria_search_value')).sendKeys(categoryName1);
-
     const confirmButton = await driver.findElement(By.css('[class="ui blue labeled icon button"'));
     await confirmButton.click();
 
@@ -173,5 +170,31 @@ describe('shipping categories', () => {
 
     await deleteCategory(categoryName1);
     await deleteCategory(categoryName2);
+  });
+
+  it.only('should filter contains category', async () => {
+    const categoryName1 = "RandomCategory";
+    const categoryName2 = "RandCategory";
+    const categoryName3 = "OtherName";
+    await genCategory(categoryName1);
+    await genCategory(categoryName2);
+    await genCategory(categoryName3);
+
+    await driver.findElement(By.linkText('Shipping categories')).click();
+    
+    const selectElement = await driver.findElement(By.css('#criteria_search_type'));
+    await driver.executeScript("arguments[0].value = 'contains';", selectElement);
+    await driver.findElement(By.id('criteria_search_value')).sendKeys('Rand');
+    const confirmButton = await driver.findElement(By.css('[class="ui blue labeled icon button"'));
+    await confirmButton.click();
+
+    const bodyText = await driver.findElement(By.tagName('body')).getText();
+    assert(bodyText.includes(categoryName1));
+    assert(bodyText.includes(categoryName2));
+    assert(!bodyText.includes(categoryName3));
+
+    await deleteCategory(categoryName1);
+    await deleteCategory(categoryName2);
+    await deleteCategory(categoryName3);
   });
 });
