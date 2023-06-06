@@ -28,13 +28,13 @@ const deleteCategory = (categoryName) => {
 }
 
 describe('shipping categories', () => {
-  beforeEach(() => {
+  beforeEach({retries: 3}, () => {
     cy.visit('/admin');
     cy.get('[id="_username"]').type('sylius');
     cy.get('[id="_password"]').type('sylius');
     cy.get('.primary').click();
+    cy.wait(1500);
   });
-  // Remove .only and implement others test cases!
   it('create a new shipping category', () => {
     // Click in shipping categories in side menu
     cy.clickInFirst('a[href="/admin/shipping-categories/"]');
@@ -103,9 +103,9 @@ describe('shipping categories', () => {
     cy.get('body').should('contain', 'Shipping category has been successfully updated.');
     cy.get('body').should('contain', 'New Name 22');
     cy.get('body').should('contain', 'New Description 22');
-    deleteCategory(categoryName);
+    deleteCategory('New Name 22');
   });
-  it('should filter equals category', () => {
+  it('should filter categories equals to "RandomCategory"', () => {
     cy.clickInFirst('a[href="/admin/shipping-categories/"]');
 
     //Create some category
@@ -114,20 +114,21 @@ describe('shipping categories', () => {
     genCategory(categoryName1);
     genCategory(categoryName2);
 
+    // Set filter to 'equals'
     cy.clickInFirst('a[href="/admin/shipping-categories/"]');
     cy.get('#criteria_search_type').select('equal');
     cy.get('[id="criteria_search_value"]').type(categoryName1);
 
     cy.get('[class="ui blue labeled icon button"').click();
 
-    
+    // Assert only category 'RandomCategory' appear
     cy.contains('tr', categoryName1).should('exist');
     cy.contains('tr', categoryName2).should('not.exist');
 
     deleteCategory(categoryName1);
     deleteCategory(categoryName2);
   });
-  it('should filter Contains category', () => {
+  it('should filter categories that contains "Rand"', () => {
     cy.clickInFirst('a[href="/admin/shipping-categories/"]');
 
     //Create categories
@@ -144,7 +145,7 @@ describe('shipping categories', () => {
     cy.get('[id="criteria_search_value"]').type('Rand');
     cy.get('[class="ui blue labeled icon button"').click();
 
-    // Assert only category 1 and 2 appear
+    // Assert only category 'RandomCategory' and 'RandCategory' appear
     cy.contains('tr', categoryName1).should('exist');
     cy.contains('tr', categoryName2).should('exist');
     cy.contains('tr', categoryName3).should('not.exist');
@@ -153,7 +154,7 @@ describe('shipping categories', () => {
     deleteCategory(categoryName2);
     deleteCategory(categoryName3);
   });
-  it('should filter Not contains category', () => {
+  it('should filter categories that not contains "Random"', () => {
     cy.clickInFirst('a[href="/admin/shipping-categories/"]');
 
     //Create a category
@@ -167,29 +168,53 @@ describe('shipping categories', () => {
 
     cy.get('[class="ui blue labeled icon button"').click();
 
-    //Assert that category do not appear
+    //Assert that none category appear
     cy.contains('tr', categoryName).should('not.exist');
 
     deleteCategory(categoryName);
   });
-  it('should filter Equals category', () => {
+  it.only('should filter categories that start with "Random"', () => {
     cy.clickInFirst('a[href="/admin/shipping-categories/"]');
 
     //Create some category
     const categoryName1 = "RandomCategory";
-    const categoryName2 = "OtherName";
+    const categoryName2 = "OtherCategory";
     genCategory(categoryName1);
     genCategory(categoryName2);
 
-    // Set filter to 'equals'
+    // Set filter to 'start with'
     cy.clickInFirst('a[href="/admin/shipping-categories/"]');
-    cy.get('#criteria_search_type').select('contains');
-    cy.get('[id="criteria_search_value"]').type(categoryName1);
+    cy.get('#criteria_search_type').select('starts_with');
+    cy.get('[id="criteria_search_value"]').type('Random');
 
     cy.get('[class="ui blue labeled icon button"').click();
 
     
-    //Assert that category 'Other name' do not appear
+    //Assert that only category 'RandomCategory' appear
+    cy.contains('tr', categoryName1).should('exist');
+    cy.contains('tr', categoryName2).should('not.exist');
+
+    deleteCategory(categoryName1);
+    deleteCategory(categoryName2);
+  });
+  it.only('should filter categories that end with "foo"', () => {
+    cy.clickInFirst('a[href="/admin/shipping-categories/"]');
+
+    //Create some category
+    const categoryName1 = "Categoryfoo";
+    const categoryName2 = "Categoryhaha";
+    genCategory(categoryName1);
+    genCategory(categoryName2);
+
+    // Set filter to 'end with'
+    cy.clickInFirst('a[href="/admin/shipping-categories/"]');
+    cy.get('#criteria_search_type').select('ends_with');
+    cy.get('[id="criteria_search_value"]').type('Random');
+
+    cy.get('[class="ui blue labeled icon button"').click();
+
+    
+    //Assert that only category 'Categoryfoo' appear
     cy.contains('tr', categoryName1).should('exist');
     cy.contains('tr', categoryName2).should('not.exist');
 
