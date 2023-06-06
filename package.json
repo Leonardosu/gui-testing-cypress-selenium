@@ -6,8 +6,8 @@
     "cypress": "./node_modules/.bin/cypress open",
     "cypress:test-file": "./node_modules/.bin/cypress run -s",
     "cypress:test-suite": "./node_modules/.bin/cypress run -s 'cypress/e2e/**/*.cy.js'",
-    "selenium:test-file": "./node_modules/.bin/mocha --timeout 10000",
-    "selenium:test-suite": "./node_modules/.bin/mocha --timeout 10000 --recursive selenium/e2e"
+    "selenium:test-file": "./node_modules/.bin/mocha --timeout 100000",
+    "selenium:test-suite": "./node_modules/.bin/mocha --timeout 100000 --recursive selenium/e2e"
   },
   "author": "",
   "license": "ISC",

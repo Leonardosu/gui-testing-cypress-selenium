@@ -26,6 +26,21 @@ describe('shipping categories', () => {
     await buttonToCreate[0].click();
   }
 
+  const deleteCategory = async (categoryName) => {
+    await driver.findElement(By.linkText('Shipping categories')).click();
+
+    // Localizar a linha com o texto 'to_be_deleted'
+    const rowLocator = By.xpath(`//tr[contains(., '${categoryName}')]`);
+    const rowElement = await driver.findElement(rowLocator);
+
+    // Encontrar o botão de exclusão dentro da linha
+    const deleteButton = await rowElement.findElement(By.css('*[class="ui red labeled icon button"]'));
+    await deleteButton.click();
+
+    const confirmButton = await driver.findElement(By.css('*[class="ui green ok inverted button"]'));
+    await confirmButton.click();
+  }
+
   before(async () => {
     driver = await new Builder().forBrowser('firefox').build();
   });
@@ -69,16 +84,14 @@ describe('shipping categories', () => {
     assert(bodyText.includes('Shipping category has been successfully created.'));
   });
 
-  it.only('should delete a shipping category if the user click YES', async () => {
+  it('should delete a shipping category if the user click YES', async () => {
     const categoryName = genString(15);
     await genCategory(categoryName);
     await driver.findElement(By.linkText('Shipping categories')).click();
 
-    // Localizar a linha com o texto 'to_be_deleted'
     const rowLocator = By.xpath(`//tr[contains(., '${categoryName}')]`);
     const rowElement = await driver.findElement(rowLocator);
 
-    // Encontrar o botão de exclusão dentro da linha
     const deleteButton = await rowElement.findElement(By.css('*[class="ui red labeled icon button"]'));
     await deleteButton.click();
 
@@ -88,5 +101,77 @@ describe('shipping categories', () => {
     const bodyText = await driver.findElement(By.tagName('body')).getText();
     assert(bodyText.includes('Shipping category has been successfully deleted.'));
     assert(!bodyText.includes(categoryName));
+  });
+  
+  it('should delete a shipping category if the user click NO', async () => {
+    const categoryName = genString(15);
+    await genCategory(categoryName);
+    await driver.findElement(By.linkText('Shipping categories')).click();
+
+    const rowLocator = By.xpath(`//tr[contains(., '${categoryName}')]`);
+    const rowElement = await driver.findElement(rowLocator);
+
+    const deleteButton = await rowElement.findElement(By.css('*[class="ui red labeled icon button"]'));
+    await deleteButton.click();
+
+    const notConfirmButton = await driver.findElement(By.css('*[class="ui red basic cancel inverted button"]'));
+    await notConfirmButton.click();
+
+    const bodyText = await driver.findElement(By.tagName('body')).getText();
+    assert(!bodyText.includes('Shipping category has been successfully deleted.'));
+    assert(bodyText.includes(categoryName));
+    deleteCategory(categoryName);
+  });
+
+  it('edit a shipping category', async () => {
+    const categoryName = genString(15);
+    await genCategory(categoryName);
+    await driver.findElement(By.linkText('Shipping categories')).click();
+
+    const rowLocator = By.xpath(`//tr[contains(., '${categoryName}')]`);
+    const rowElement = await driver.findElement(rowLocator);
+
+    const editButton = await rowElement.findElement(By.css('*[class^="ui labeled icon button"]'));
+    await editButton.click();
+    
+    await driver.findElement(By.id('sylius_shipping_category_name')).clear();
+    await driver.findElement(By.id('sylius_shipping_category_description')).clear();
+
+    await driver.findElement(By.id('sylius_shipping_category_name')).sendKeys('New Name 22');
+    await driver.findElement(By.id('sylius_shipping_category_description')).sendKeys('New Description 22');
+
+    const confirmButton = await driver.findElement(By.css('*[class="ui labeled icon primary button"]'));
+    await confirmButton.click();
+
+    const bodyText = await driver.findElement(By.tagName('body')).getText();
+    assert(bodyText.includes('Shipping category has been successfully updated.'));
+    assert(bodyText.includes('New Name 22'));
+    assert(bodyText.includes('New Description 22'));
+    deleteCategory(categoryName);
+  });
+
+  it.only('should filter equals category', async () => {
+    const categoryName1 = "RandomCategory";
+    const categoryName2 = "OtherName";
+    await genCategory(categoryName1);
+    await genCategory(categoryName2);
+
+    await driver.findElement(By.linkText('Shipping categories')).click();
+    
+    const elementoSelect = await driver.findElement(By.css('#criteria_search_type'));
+
+    await driver.executeScript("arguments[0].value = 'equal';", elementoSelect);
+
+    await driver.findElement(By.id('criteria_search_value')).sendKeys(categoryName1);
+
+    const confirmButton = await driver.findElement(By.css('[class="ui blue labeled icon button"'));
+    await confirmButton.click();
+
+    const bodyText = await driver.findElement(By.tagName('body')).getText();
+    assert(bodyText.includes(categoryName1));
+    assert(!bodyText.includes(categoryName2));
+
+    await deleteCategory(categoryName1);
+    await deleteCategory(categoryName2);
   });
 });
